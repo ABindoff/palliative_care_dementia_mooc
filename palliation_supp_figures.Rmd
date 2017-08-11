@@ -1,0 +1,100 @@
+---
+title: "'Palliative Care Means...' MOOC discussion analysis using a structural topic model"
+author: "Bindoff, A."
+date: "10th August 2017"
+output: 
+  github_document
+  
+---
+```{r, echo = F}
+knitr::opts_chunk$set(echo = FALSE, message = F, warning = F)
+
+
+cov1cod <- "cat1"
+cov1lab <- "cat1 cohort"
+cov2cod <- "cat4"
+cov2lab <- "cat4 cohort"
+rm <- c("palliation", "palliative")
+
+```
+
+Report author: Bindoff. A, aidan.bindoff@utas.edu.au, `r Sys.Date()`
+
+
+
+```{r, warning = F, message = F, echo = F}
+library(dplyr)
+library(data.table)
+library(readr)
+library(ggplot2)
+library(knitr)
+library(stm)
+
+```
+
+
+```{r}
+
+load("palliation_out.RData")
+load("palliation_meta.RData")
+load("palliation_fit.RData")
+```
+
+
+
+```{r fig1, fig.cap="Figure 1. Distribution of topics"}
+topic.labels = c("3. Dignity and comfort", "9. Planning for end of life", "4. Quality of life", "8. Care in diverse settings", "6. Social connection maintained", "2. Optimal care environment", "5. Family support", "7. Appropriate for any life-limiting condition", "1. Quality of death")
+custom.labels = rep("", 9)
+plot.STM(fit, type = "summary", topics = c(1:6, 8:10),main = "", xlab = "", custom.labels = custom.labels, topic.names = topic.labels)
+
+```
+  
+*Figure 1. Distribution of topics*
+
+
+
+```{r, include = FALSE, eval = T}
+
+fx <- estimateEffect(c(1:K) ~ cat, fit, meta = out$meta)
+
+m <- invisible(plot.estimateEffect(fx, covariate = "cat", topics = c(1:K),
+                         model = fit, method = "pointestimate"))
+
+```
+
+  
+  
+### Difference of topic distributions between cohorts, all pair-wise comparisons
+
+```{r, results = "asis", eval = T}
+a <- NULL
+for(i in c(1:6, 8:11)){
+  for(j in seq_along(m$uvals)){
+    a <- c(a, m$uvals[j], i, round(m$means[[i]][j], 2), round(m$cis[[i]][1,j], 3), round(m$cis[[i]][2,j], 3))
+   }
+}
+
+b <- as.data.frame(matrix(a, ncol = 5, byrow = T))
+colnames(b) <- c("cat", "topic", "mean", "2.5%CI", "97.5%CI")
+
+
+
+p <- plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:10),
+                         model = fit, method = "difference", cov.value1 = "cat1", cov.value2 = "cat2")
+
+plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
+                         model = fit, method = "difference", cov.value1 = "cat1", cov.value2 = "cat3")
+
+plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
+                         model = fit, method = "difference", cov.value1 = "cat1", cov.value2 = "cat4")
+
+plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
+                         model = fit, method = "difference", cov.value1 = "cat2", cov.value2 = "cat3")
+
+plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
+                         model = fit, method = "difference", cov.value1 = "cat2", cov.value2 = "cat4")
+
+plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
+                         model = fit, method = "difference", cov.value1 = "cat3", cov.value2 = "cat4")
+
+```
