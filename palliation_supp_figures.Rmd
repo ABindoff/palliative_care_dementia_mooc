@@ -40,7 +40,7 @@ load("palliation_meta.RData")
 load("palliation_fit.RData")
 ```
 
-
+### Distribution of topics within corpus
 
 ```{r fig1, fig.cap="Figure 1. Distribution of topics"}
 topic.labels = c("3. Dignity and comfort", "9. Planning for end of life", "4. Quality of life", "8. Care in diverse settings", "6. Social connection maintained", "2. Optimal care environment", "5. Family support", "7. Appropriate for any life-limiting condition", "1. Quality of death")
@@ -49,11 +49,10 @@ plot.STM(fit, type = "summary", topics = c(1:6, 8:10),main = "", xlab = "", cust
 
 ```
   
-*Figure 1. Distribution of topics*
-
 
 
 ```{r, include = FALSE, eval = T}
+K <- 12
 
 fx <- estimateEffect(c(1:K) ~ cat, fit, meta = out$meta)
 
@@ -62,9 +61,43 @@ m <- invisible(plot.estimateEffect(fx, covariate = "cat", topics = c(1:K),
 
 ```
 
-  
-  
-### Difference of topic distributions between cohorts, all pair-wise comparisons
+
+
+### Difference of topic proportions between cohorts, all pair-wise comparisons
+
+$p_{i,n} - p_{j,n}$, where $p_{i,n}$ is the proportion of text from cohort $i$ that is about topic $n$. Whiskers represent Bayesian 95% credible intervals.  
+
+
+```{r, results = "asis", eval = T}
+
+plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:10),
+                         model = fit, method = "difference", cov.value1 = "cat1", cov.value2 = "cat2",
+                         labeltype = "custom", custom.labels = topic.labels, main = "cat1 vs cat2")
+
+plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
+                         model = fit, method = "difference", cov.value1 = "cat1", cov.value2 = "cat3",
+                         labeltype = "custom", custom.labels = topic.labels, main = "cat1 vs cat3")
+
+plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
+                         model = fit, method = "difference", cov.value1 = "cat1", cov.value2 = "cat4",
+                         labeltype = "custom", custom.labels = topic.labels, main = "cat1 vs cat4")
+
+plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
+                         model = fit, method = "difference", cov.value1 = "cat2", cov.value2 = "cat3",
+                         labeltype = "custom", custom.labels = topic.labels, main = "cat2 vs cat3")
+
+plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
+                         model = fit, method = "difference", cov.value1 = "cat2", cov.value2 = "cat4",
+                         labeltype = "custom", custom.labels = topic.labels, main = "cat2 vs cat4")
+
+plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
+                         model = fit, method = "difference", cov.value1 = "cat3", cov.value2 = "cat4",
+                         labeltype = "custom", custom.labels = topic.labels, main = "cat3 vs cat4")
+
+```
+
+
+### Estimated topic prevalence by cohort
 
 ```{r, results = "asis", eval = T}
 a <- NULL
@@ -77,24 +110,5 @@ for(i in c(1:6, 8:11)){
 b <- as.data.frame(matrix(a, ncol = 5, byrow = T))
 colnames(b) <- c("cat", "topic", "mean", "2.5%CI", "97.5%CI")
 
-
-
-p <- plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:10),
-                         model = fit, method = "difference", cov.value1 = "cat1", cov.value2 = "cat2")
-
-plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
-                         model = fit, method = "difference", cov.value1 = "cat1", cov.value2 = "cat3")
-
-plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
-                         model = fit, method = "difference", cov.value1 = "cat1", cov.value2 = "cat4")
-
-plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
-                         model = fit, method = "difference", cov.value1 = "cat2", cov.value2 = "cat3")
-
-plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
-                         model = fit, method = "difference", cov.value1 = "cat2", cov.value2 = "cat4")
-
-plot.estimateEffect(fx, covariate = "cat", topics = c(1:6, 8:11),
-                         model = fit, method = "difference", cov.value1 = "cat3", cov.value2 = "cat4")
-
+kable(b)
 ```
